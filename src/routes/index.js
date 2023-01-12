@@ -1,6 +1,7 @@
 import expresss from "express"
 
 import userRouter from "./userRouter.js"
+import listRouter from "./ListRouter.js"
 
 const routes = app => {
     app.route('/').get((req, res) => {
@@ -11,7 +12,8 @@ const routes = app => {
 
     app.use(
         expresss.json(),
-        userRouter
+        userRouter,
+        listRouter
     )
 }
 

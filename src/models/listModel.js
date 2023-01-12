@@ -4,28 +4,29 @@ const ListSchema = new mongoose.Schema(
     {
         id: String,
         user_id: {
-            type    : Number,
-            require : true
+            type    : mongoose.Schema.Types.ObjectId,
+            ref: "user",
+            required : true
         },
         year_save: {
             type    : Number,
-            require : true
+            required : true
         },
         mounth_save: {
             type    : String,
-            require : true
+            required : true
         },
         itens_list: {
             type    : Array,
-            require : true
+            required : true
         },
         total: {
             type    : Number,
-            require : true
+            required : true
         }
     }
 );
 
-const ListModel = mongoose.model( "list_item" , ListSchema);
+const ListModel = mongoose.model( "list_itens" , ListSchema);
 
 export default ListModel;
