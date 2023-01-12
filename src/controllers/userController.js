@@ -1,8 +1,12 @@
 import UserModel from '../models/UserModel.js';
 import bcrypt from 'bcrypt';
+import jwt from "jsonwebtoken"
+import dotenv from "dotenv"
+
+dotenv.config()
 
 
-export default class UserController {
+export class UserController {
 
     // to POST Method - Register new user
     static registerNewUser = async (req, res) => {
@@ -23,7 +27,7 @@ export default class UserController {
                     msg: "Campo de nome obrigatório"
                 })
         }
-        if(!email){
+        if (!email) {
             return res
                 .status(422)
                 .send({
@@ -32,7 +36,7 @@ export default class UserController {
                 })
         }
 
-        if(!password){
+        if (!password) {
             return res
                 .status(422)
                 .send({
@@ -40,7 +44,7 @@ export default class UserController {
                     msg: "Insira uma senha válida"
                 })
         }
-        else if(password != confirmPassword) {
+        else if (password != confirmPassword) {
             return res
                 .status(422)
                 .send({
@@ -51,8 +55,8 @@ export default class UserController {
 
 
         //User exist
-        const userEmailExist = await UserModel.findOne({ email : emailUser });
-        if(userEmailExist){
+        const userEmailExist = await UserValidation.verifyEmail(email);
+        if (userEmailExist) {
             return res
                 .status(422)
                 .send({
@@ -74,7 +78,7 @@ export default class UserController {
 
         User.save((err) => {
 
-            if(!err){
+            if (!err) {
                 res
                     .status(201)
                     .send({
@@ -82,7 +86,7 @@ export default class UserController {
                         msg: 'Usuario Cadastrado com sucesso'
                     })
             }
-            else{
+            else {
                 res
                     .status(500)
                     .send({
@@ -91,17 +95,16 @@ export default class UserController {
                     })
             }
         })
-        
+
 
     }
 
     //to POST Method - Login a user
     static loginUser = async (req, res) => {
         const { email, password, } = req.body
-        
 
         //Verify E-mail and Password
-        if(!email){
+        if (!email) {
             return res
                 .status(422)
                 .send({
@@ -110,7 +113,7 @@ export default class UserController {
                 })
         }
 
-        if(!password){
+        if (!password) {
             return res
                 .status(422)
                 .send({
@@ -120,42 +123,132 @@ export default class UserController {
         }
 
         //Verify if user exist on DB
-        const user = await UserModel.findOne({ email : email })
-        if(!user){
+        const user = await UserModel.findOne({ email: email })
+        if (!user) {
             return res
-            .status(404)
-            .send({
-                err: 'userDontExist',
-                msg: "Usuário não existe ou não foi encontrado"
-            })
+                .status(404)
+                .send({
+                    err: 'userDontExist',
+                    msg: "Usuário não existe ou não foi encontrado"
+                })
         }
 
         //Veryfy password match
-        const checkPassword = await Validation.verifyPassword(password, user.password)
-        
-        if(!checkPassword){
+        const checkPassword = await UserValidation.verifyPassword(password, user.password)
+
+        if (!checkPassword) {
             return res
-            .status(404)
-            .send({
-                err: 'passwordError',
-                msg: "Senha inválida"
-            })
+                .status(404)
+                .send({
+                    err: 'passwordError',
+                    msg: "Senha inválida"
+                })
+        }
+
+        try {
+            
+            const token = UserValidation.createToken(user._id);
+            
+            res
+                .status(200)
+                .send({
+                    err: null,
+                    msg: "Autenticação realizada com sucesso",
+                    token: token
+                })
+        }
+        catch(err) {
+            console.log(err)
         }
     }
+
+
+    //to GET Method - Private page 
+    static userPage = async (req, res) => {
+        const id = req.params.id;
+
+        const user = await UserModel.findOne( {_id: id}, '-password' )
+
+        if(!user){
+            res
+            .status(404)
+            .send({
+                err: 'userDontExist',
+                msg: 'Usuário não encontrado'
+            })
+        }
+        
+        res.status(200).json(user)
+    }
+
+
+
+
+
+
 
     //TEMP
     static getUser = (req, res) => {
         UserModel
             .find()
-            .exec((err, booksFind) =>{
+            .exec((err, booksFind) => {
                 res.status(200).json(booksFind)
-            } )
+            })
     }
 }
 
-class Validation {
 
-    static async verifyPassword(pass, userPass){
-        return await bcrypt.compare(pass, userPass) 
+
+export class UserValidation {
+
+    static async verifyPassword(pass, userPass) {
+        return await bcrypt.compare(pass, userPass)
+    }
+
+    static async verifyEmail(emailUser) {
+        return await UserModel.findOne({ email: emailUser })
+    }
+
+    static createToken(idUser){
+        const secret = process.env.SECRET
+        const token = jwt.sign(
+            {
+                id: idUser.id,
+            },
+            secret
+        )
+
+        return token
+    }    
+
+
+    //Verify if token is valid
+    static checkToken = (req, res, next) => {
+        const authHeader = req.headers['authorization']
+        const token = authHeader && authHeader.split(' ')[1]
+
+        if(!token){
+            res
+                .status(401)
+                .send({
+                    err: 'noToken',
+                    msg: 'Acesso Negado'
+                })
+        }
+
+        try{
+            const secret = process.env.SECRET;
+            jwt.verify(token, secret)
+
+            next()
+        }
+        catch(err){
+            res
+                .status(401)
+                .send({
+                    err: 'invalidToken',
+                    msg: 'Token inválido'
+                })
+        }
     }
 }
