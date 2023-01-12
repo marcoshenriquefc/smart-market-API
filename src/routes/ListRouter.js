@@ -7,6 +7,7 @@ router
     .get("/listProduct/seach", ListController.listAllProduct)
     .post("/listProduct", ListController.createNewList)
     .post("/listProduct/item", ListController.updateItensList)
-    .put("/listProduct/item", ListController.deleteItemList)
+    .put("/listProduct/removeItem", ListController.deleteItemList)
+    .put("/listProduct/updateItem", ListController.updateItemList)
 
 export default router
