@@ -1,10 +1,12 @@
 import mongoose from "mongoose";
 import dotenv from "dotenv"
 
-dotenv.config()
+dotenv.config();
 
 const userDB = process.env.DB_USER;
 const passDB = process.env.DB_PASS;
+
+console.log(userDB);
 
 mongoose.connect(`mongodb+srv://${userDB}:${passDB}@smartmarket.ymstrgv.mongodb.net/smartMarket-data`);
 
