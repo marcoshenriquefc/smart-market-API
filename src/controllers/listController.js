@@ -37,20 +37,12 @@ export default class ListController {
     }
 
     //to POST Methods - Change itens in itens_list
-    static updateItensList = (req, res) => {
+    static updateItensList = async (req, res) => {
         const { list_id, ...product } = req.body
 
-        console.log(req.body)
+        const prodCheck = Validation.verifyObjectToSend(product)
 
-        if (
-            list_id &&
-            product.id_item &&
-            product.quantity &&
-            product.name &&
-            product.price &&
-            product.total &&
-            product.checked != null
-        ) {
+        if (list_id && prodCheck) {
             ListModel.findOneAndUpdate(
                 { _id: list_id },
                 {
@@ -81,48 +73,156 @@ export default class ListController {
     }
 
     //to PUT Method - Delete item in itens_list
-    static deleteItemList = (req, res) => {
+    static deleteItemList = async (req, res) => {
         const { list_id, id_item } = req.body
 
-        ListModel.updateOne(
-            { _id: list_id },
-            {
-                $pull: { "itens_list": { id_item } }
-            },
-            (err) => {
-                if (!err) {
-                    res
-                        .status(200)
-                        .send({
-                            err: null,
-                            msg: "Produto deletado com sucesso"
-                        })
+        if (id_item && list_id) {
+
+            Validation.verifyIDList(list_id);
+            Validation.verifyIDItem(list_id, id_item);
+
+            ListModel.updateOne(
+                { _id: list_id },
+                {
+                    $pull: { "itens_list": { id_item } }
+                },
+                (err) => {
+                    if (!err) {
+                        res
+                            .status(200)
+                            .send({
+                                err: null,
+                                msg: "Produto deletado com sucesso"
+                            })
+                    }
                 }
-            }
-        )
+            )
+        }
+        else {
+            res
+                .status(500)
+                .send({
+                    err: "noIDSend",
+                    msg: "Não foi possível remover os itens, verifique se os dados"
+                })
+        }
     }
 
-    //to PUT Method - Delete item in itens_list
-    static updateItemList = (req, res) => {
-        const { list_id, ...itemUpdate} = req.body
+    //to PUT Method -
+    static updateItemList = async (req, res) => {
+        const { list_id, ...itemUpdate } = req.body
 
-        ListModel.updateOne(
-            { _id: list_id, "itens_list.id_item": itemUpdate.id_item},
-            {
-                $set: {
-                    "itens_list.$": itemUpdate 
+        // const checkIdList = await Validation.verifyIDList(list_id, res);
+        const checkIdItem = await Validation.verifyIDItem(list_id, itemUpdate.id_item);
+
+        if (checkIdItem) {
+            //Take object in DB
+            const itemList = await ListModel.findOne(
+                { _id: list_id, "itens_list.id_item": itemUpdate.id_item },
+                { "itens_list.$": 1 }
+            )
+
+            //Cross the object
+            const newProduct = Object.assign(itemList.itens_list[0], itemUpdate);
+
+            // ListModel.findById(
+            //     {_id : list_id },
+            //     (err)=> {
+            //         if(err){
+            //             res
+            //                 .status(404)
+            //                 .send({
+            //                     err: '',
+            //                     msg: err + ' - Erro ao encontrar a lista'
+            //                 })
+            //         }
+            //     })
+
+            ListModel.updateOne(
+                { _id: list_id, "itens_list.id_item": itemUpdate.id_item },
+                {
+                    $set: {
+                        "itens_list.$": newProduct
+                    }
+                },
+                (err) => {
+                    console.log('vai pa poha seu caralho de asa')
+                    if (!err) {
+                        res
+                            .status(200)
+                            .send({
+                                err: null,
+                                msg: "Produto editado com sucesso"
+                            })
+                    }
+                    else {
+                        res
+                            .status(500)
+                            .send({
+                                err: "editProduct",
+                                msg: "Erro ao editar produto"
+                            })
+                    }
                 }
-            },
-            (err) => {
-                if (!err) {
-                    res
-                        .status(200)
-                        .send({
-                            err: null,
-                            msg: "Produto deletado com sucesso"
-                        })
-                }
-            }
+            )
+
+        }
+        else {
+
+            res
+                .status(404)
+                .send({
+                    err: 'listItemIDNotFound',
+                    msg: 'Item ou Lista não encontrado'
+                })
+        }
+    }
+}
+
+class Validation {
+
+    static verifyObjectToSend(prod) {
+        if (
+            prod.id_item &&
+            prod.quantity &&
+            prod.name &&
+            prod.price &&
+            prod.total &&
+            prod.checked != null
+        ) {
+            return true
+        }
+        else {
+            return false
+        }
+    }
+
+    // static async verifyIDList(idList, res) {
+
+    //     try {
+    //         ListModel.findById(
+    //             { _id: idList }
+    //         )
+
+    //         return true
+    //     }
+    //     catch(err) {
+    //         return false
+    //     }
+
+    // }
+
+    static async verifyIDItem(idList, idItem) {
+        const i = await ListModel.findOne(
+            { _id: idList, "itens_list.id_item": idItem },
+            { "itens_list.$": 1 }
         )
+
+        if (i === null) {
+            return false
+        }
+        else {
+            return true
+        }
     }
 }
