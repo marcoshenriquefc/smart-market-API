@@ -146,7 +146,6 @@ export default class ListController {
                     }
                 },
                 (err) => {
-                    console.log('vai pa poha seu caralho de asa')
                     if (!err) {
                         res
                             .status(200)
