@@ -8,7 +8,7 @@ export default class ListController {
         const id = req.query;
 
         ListModel.find(id)
-            .populate("user_id", "name")
+            .populate("user_id", "email")
             .exec((err, ListFind) => {
                 res
                     .status(200)

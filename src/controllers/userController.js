@@ -135,7 +135,6 @@ export class UserController {
 
         //Veryfy password match
         const checkPassword = await UserValidation.verifyPassword(password, user.password)
-
         if (!checkPassword) {
             return res
                 .status(404)
@@ -146,7 +145,6 @@ export class UserController {
         }
 
         try {
-            
             const token = UserValidation.createToken(user._id);
             
             res
