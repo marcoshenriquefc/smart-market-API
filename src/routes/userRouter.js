@@ -6,10 +6,10 @@ import ValidationAuth from "./validationToken.js";
 const router = express.Router();
 
 router
-    .post("/auth/register", UserController.registerNewUser)
-    .post("/auth/login", UserController.loginUser)
+    .post("/auth/register"  , UserController.registerNewUser)
+    .post("/auth/login"     , UserController.loginUser)
+    .get("/user/:id"        , ValidationAuth.checkToken , UserController.userPage)
     // .get('/teste',  UserController.getUser)
-    .get("/user/:id", ValidationAuth.checkToken , UserController.userPage)
 
 
 

@@ -44,6 +44,7 @@ export class UserController {
                     msg: "Insira uma senha válida"
                 })
         }
+
         else if (password != confirmPassword) {
             return res
                 .status(422)
@@ -145,17 +146,20 @@ export class UserController {
         }
 
         try {
+            const idUser = user;
             const token = UserValidation.createToken(user._id);
-            
+
+
             res
                 .status(200)
                 .send({
-                    err: null,
-                    msg: "Autenticação realizada com sucesso",
-                    token: token
+                    err     : null,
+                    msg     : "Autenticação realizada com sucesso",
+                    token   : token,
+                    idUser  : idUser,
                 })
         }
-        catch(err) {
+        catch (err) {
             console.log(err)
         }
     }
@@ -165,17 +169,17 @@ export class UserController {
     static userPage = async (req, res) => {
         const id = req.params.id;
 
-        const user = await UserModel.findOne( {_id: id}, '-password' )
+        const user = await UserModel.findOne({ _id: id }, '-password')
 
-        if(!user){
+        if (!user) {
             res
-            .status(404)
-            .send({
-                err: 'userDontExist',
-                msg: 'Usuário não encontrado'
-            })
+                .status(404)
+                .send({
+                    err: 'userDontExist',
+                    msg: 'Usuário não encontrado'
+                })
         }
-        
+
         res.status(200).json(user)
     }
 
@@ -207,7 +211,7 @@ export class UserValidation {
         return await UserModel.findOne({ email: emailUser })
     }
 
-    static createToken(idUser){
+    static createToken(idUser) {
         const secret = process.env.SECRET
         const token = jwt.sign(
             {
@@ -217,5 +221,5 @@ export class UserValidation {
         )
 
         return token
-    }    
+    }
 }
