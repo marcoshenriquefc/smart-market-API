@@ -153,10 +153,10 @@ export class UserController {
             res
                 .status(200)
                 .send({
-                    err     : null,
-                    msg     : "Autenticação realizada com sucesso",
-                    token   : token,
-                    idUser  : idUser._id,
+                    err: null,
+                    msg: "Autenticação realizada com sucesso",
+                    token: token,
+                    idUser: idUser._id,
                 })
         }
         catch (err) {
@@ -186,24 +186,55 @@ export class UserController {
 
 
     static validateUserToken = async (req, res) => {
-        const id = req.body.idUser
-
-        const user = await UserModel.findOne({ _id: id })
-
         try {
-            const idUser = user;
+            const idClient = req.body.idUser
+            const tokenClient = req.body.tokenUser;
+            const secret = process.env.SECRET
+
+
+            const userDB = await UserModel.findOne({ _id: idClient })
             //Token DataBase
-            const tokenDB = UserValidation.createToken(user._id);
+            const tokenDB = UserValidation.createToken(userDB._id);
 
 
-            res
-                .status(200)
-                .send({
-                    err     : null,
-                    msg     : "Autenticação realizada com sucesso",
-                    token   : token,
-                    idUser  : idUser._id,
-                })
+            //Decode Token 
+            try{
+                const decodeToken = jwt.verify(tokenClient, secret);
+                const currentTime = Math.floor(Date.now() / 1000);
+
+                    
+                if (decodeToken && decodeToken.exp > currentTime && currentTime > decodeToken.nbf) {
+                    res
+                        .status(200)
+                        .send({
+                            err: null,
+                            msg: "Autenticação realizada com sucesso",
+                            token: tokenDB,
+                            nameUser: userDB.name,
+                            idUser: userDB._id,
+                        })
+
+                } else {
+                    res
+                        .status(500)
+                        .send({
+                            err: "TOKEN_EXPIRED",
+                            msg: "ERRO NA VALICAÇÃO"
+                        })
+                }
+            }
+            catch{
+                res
+                    .status(500)
+                    .send({
+                        err: 'INVALID_TOKEN',
+                        msg: "TOKEN INVALIDO"
+                    })
+            }
+
+
+
+
         }
         catch (err) {
             console.log(err)
@@ -236,10 +267,13 @@ export class UserValidation {
 
     static createToken(idUser) {
         const secret = process.env.SECRET
+        const dataToEncode = {
+            id: idUser.id,
+            exp: Math.floor(Date.now() / 1000) + (60 * 60),
+            nbf: Math.floor(Date.now() / 1000),
+        }
         const token = jwt.sign(
-            {
-                id: idUser.id,
-            },
+            dataToEncode,
             secret
         )
 

@@ -8,6 +8,7 @@ const router = express.Router();
 router
     .post("/auth/register"  , UserController.registerNewUser)
     .post("/auth/login"     , UserController.loginUser)
+    .post("/auth/validation" , UserController.validateUserToken)
     .get("/user/:id"        , ValidationAuth.checkToken , UserController.userPage)
     // .get('/teste',  UserController.getUser)
 
