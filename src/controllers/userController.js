@@ -187,14 +187,12 @@ export class UserController {
 
     static validateUserToken = async (req, res) => {
         try {
+            console.log(req.body)
             const idClient = req.body.idUser
             const tokenClient = req.body.tokenUser;
             const secret = process.env.SECRET
 
-
             const userDB = await UserModel.findOne({ _id: idClient })
-            //Token DataBase
-            const tokenDB = UserValidation.createToken(userDB._id);
 
 
             //Decode Token 
@@ -202,14 +200,13 @@ export class UserController {
                 const decodeToken = jwt.verify(tokenClient, secret);
                 const currentTime = Math.floor(Date.now() / 1000);
 
-                    
                 if (decodeToken && decodeToken.exp > currentTime && currentTime > decodeToken.nbf) {
                     res
                         .status(200)
                         .send({
                             err: null,
                             msg: "Autenticação realizada com sucesso",
-                            token: tokenDB,
+                            token: tokenClient,
                             nameUser: userDB.name,
                             idUser: userDB._id,
                         })
@@ -225,7 +222,7 @@ export class UserController {
             }
             catch{
                 res
-                    .status(500)
+                    .status(400)
                     .send({
                         err: 'INVALID_TOKEN',
                         msg: "TOKEN INVALIDO"
@@ -269,7 +266,7 @@ export class UserValidation {
         const secret = process.env.SECRET
         const dataToEncode = {
             id: idUser.id,
-            exp: Math.floor(Date.now() / 1000) + (60 * 60),
+            exp: Math.floor(Date.now() / 1000) + ((60 * 60) + (30 * 60)),
             nbf: Math.floor(Date.now() / 1000),
         }
         const token = jwt.sign(
