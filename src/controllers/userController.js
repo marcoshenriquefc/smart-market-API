@@ -156,7 +156,7 @@ export class UserController {
                     err     : null,
                     msg     : "Autenticação realizada com sucesso",
                     token   : token,
-                    idUser  : idUser,
+                    idUser  : idUser._id,
                 })
         }
         catch (err) {
@@ -185,7 +185,30 @@ export class UserController {
 
 
 
+    static validateUserToken = async (req, res) => {
+        const id = req.body.idUser
 
+        const user = await UserModel.findOne({ _id: id })
+
+        try {
+            const idUser = user;
+            //Token DataBase
+            const tokenDB = UserValidation.createToken(user._id);
+
+
+            res
+                .status(200)
+                .send({
+                    err     : null,
+                    msg     : "Autenticação realizada com sucesso",
+                    token   : token,
+                    idUser  : idUser._id,
+                })
+        }
+        catch (err) {
+            console.log(err)
+        }
+    }
 
 
 
