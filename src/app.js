@@ -5,7 +5,6 @@ import cors from 'cors'
 
 db.on("error", console.log.bind(console, "====== <> ERRO NA CONEXÃO <> ======"));
 db.once("open", () => {
-    console.log("====== <> CONEXÃO REALIZADA COM SUCESSO <> ======");
 });
 
 const app = express();
