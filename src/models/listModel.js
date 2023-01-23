@@ -19,7 +19,7 @@ const ListSchema = new mongoose.Schema(
             type    : String,
             required : true
         },
-        itens_list: {
+        itens_list : {
             type    : Array,
             required : true
         },

@@ -184,6 +184,38 @@ export class UserController {
     }
 
 
+    //to PUT Method - Update user list
+    static addListToUser = async (req, res) => {
+        const idUser = req.body.idUser;
+        const idList = req.body.idList;
+
+
+        UserModel.updateOne(
+            { _id: idUser },
+            {
+                $push: { "lists_product": { idList } }
+            },
+            (err) => {
+                if (!err) {
+                    res
+                        .status(200)
+                        .send({
+                            err: null,
+                            msg: "Lista adicionada com sucesso"
+                        })
+                }
+                else{
+                    res
+                    .status(200)
+                    .send({
+                        err: null,
+                        msg: "Erro ao adicionar lista"
+                    })
+                }
+            }
+        )
+    }
+
 
     static validateUserToken = async (req, res) => {
         try {
@@ -196,7 +228,7 @@ export class UserController {
 
 
             //Decode Token 
-            try{
+            try {
                 const decodeToken = jwt.verify(tokenClient, secret);
                 const currentTime = Math.floor(Date.now() / 1000);
 
@@ -220,7 +252,7 @@ export class UserController {
                         })
                 }
             }
-            catch{
+            catch {
                 res
                     .status(400)
                     .send({
