@@ -8,6 +8,9 @@ const ListSchema = new mongoose.Schema(
             ref: "user",
             required : true
         },
+        user_can_view: {
+            typeof  : Array,
+        },
         year_save: {
             type    : Number,
             required : true
