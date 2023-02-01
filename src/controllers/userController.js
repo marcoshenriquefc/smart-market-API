@@ -10,7 +10,6 @@ export class UserController {
 
     // to POST Method - Register new user
     static registerNewUser = async (req, res) => {
-
         const {
             name,
             email,
@@ -18,7 +17,7 @@ export class UserController {
             confirmPassword
         } = req.body
 
-        //VALIDATIONS 
+        // Field Validation's
         if (!name) {
             return res
                 .status(422)
@@ -44,7 +43,6 @@ export class UserController {
                     msg: "Insira uma senha válida"
                 })
         }
-
         else if (password != confirmPassword) {
             return res
                 .status(422)
@@ -55,7 +53,7 @@ export class UserController {
         }
 
 
-        //User exist
+        // User exist
         const userEmailExist = await UserValidation.verifyEmail(email);
         if (userEmailExist) {
             return res
@@ -66,19 +64,19 @@ export class UserController {
                 })
         }
 
-        //create password hash
+        // Create password HASH
         const salt = await bcrypt.genSalt(12);
         const passwordHash = await bcrypt.hash(password, salt)
 
-        //create user
+        // Create Object user
         const User = new UserModel({
             name,
             email,
             password: passwordHash
         })
 
+        // Save user on the DB
         User.save((err) => {
-
             if (!err) {
                 res
                     .status(201)
@@ -96,15 +94,13 @@ export class UserController {
                     })
             }
         })
-
-
     }
 
-    //to POST Method - Login a user
+    // to POST Method - Login a user
     static loginUser = async (req, res) => {
         const { email, password, } = req.body
 
-        //Verify E-mail and Password
+        // Verify field's - E-mail and Password
         if (!email) {
             return res
                 .status(422)
@@ -113,7 +109,6 @@ export class UserController {
                     msg: "Campo de senha obrigatório"
                 })
         }
-
         if (!password) {
             return res
                 .status(422)
@@ -123,8 +118,8 @@ export class UserController {
                 })
         }
 
-        //Verify if user exist on DB
-        const user = await UserModel.findOne({ email: email })
+        //Verify if User exist on DB
+        const user = await UserValidation.verifyEmail(email);
         if (!user) {
             return res
                 .status(404)
@@ -165,7 +160,7 @@ export class UserController {
     }
 
 
-    //to GET Method - Private page 
+    // to GET Method - Private page 
     static userPage = async (req, res) => {
         const id = req.params.id;
 
@@ -184,7 +179,7 @@ export class UserController {
     }
 
 
-    //to PUT Method - Update user list
+    // to PUT Method - Update user list
     static addListToUser = async (req, res) => {
         const idUser = req.body.idUser;
         const idList = req.body.idList;
