@@ -125,19 +125,6 @@ export default class ListController {
             //Cross the object
             const newProduct = Object.assign(itemList.itens_list[0], itemUpdate);
 
-            // ListModel.findById(
-            //     {_id : list_id },
-            //     (err)=> {
-            //         if(err){
-            //             res
-            //                 .status(404)
-            //                 .send({
-            //                     err: '',
-            //                     msg: err + ' - Erro ao encontrar a lista'
-            //                 })
-            //         }
-            //     })
-
             ListModel.updateOne(
                 { _id: list_id, "itens_list.id_item": itemUpdate.id_item },
                 {
