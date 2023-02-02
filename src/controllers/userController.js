@@ -144,7 +144,6 @@ export class UserController {
             const idUser = user;
             const token = UserValidation.createToken(user._id);
 
-
             res
                 .status(200)
                 .send({
@@ -158,60 +157,8 @@ export class UserController {
             console.log(err)
         }
     }
-
-
-    // to GET Method - Private page 
-    static userPage = async (req, res) => {
-        const id = req.params.id;
-
-        const user = await UserModel.findOne({ _id: id }, '-password')
-
-        if (!user) {
-            res
-                .status(404)
-                .send({
-                    err: 'userDontExist',
-                    msg: 'Usuário não encontrado'
-                })
-        }
-
-        res.status(200).json(user)
-    }
-
-
-    // to PUT Method - Update user list
-    static addListToUser = async (req, res) => {
-        const idUser = req.body.idUser;
-        const idList = req.body.idList;
-
-
-        UserModel.updateOne(
-            { _id: idUser },
-            {
-                $push: { "lists_product": { idList } }
-            },
-            (err) => {
-                if (!err) {
-                    res
-                        .status(200)
-                        .send({
-                            err: null,
-                            msg: "Lista adicionada com sucesso"
-                        })
-                }
-                else{
-                    res
-                    .status(200)
-                    .send({
-                        err: null,
-                        msg: "Erro ao adicionar lista"
-                    })
-                }
-            }
-        )
-    }
-
-
+    
+    // to POST Method - Validate Token on cookie's
     static validateUserToken = async (req, res) => {
         try {
             console.log(req.body)
@@ -265,6 +212,59 @@ export class UserController {
         }
     }
 
+    // to GET Method - Private page 
+    static userPage = async (req, res) => {
+        const id = req.params.id;
+
+        const user = await UserModel.findOne({ _id: id }, '-password')
+
+        if (!user) {
+            res
+                .status(404)
+                .send({
+                    err: 'userDontExist',
+                    msg: 'Usuário não encontrado'
+                })
+        }
+
+        res.status(200).json(user)
+    }
+
+    // to PUT Method - Update user list
+    static addListToUser = async (req, res) => {
+        const idUser = req.body.idUser;
+        const idList = req.body.idList;
+
+
+        UserModel.updateOne(
+            {
+                _id: idUser 
+            },
+            {
+                $push: { "lists_product": { idList } }
+            },
+            (err) => {
+                if (!err) {
+                    res
+                        .status(200)
+                        .send({
+                            err: null,
+                            msg: "Lista adicionada com sucesso"
+                        })
+                }
+                else{
+                    res
+                    .status(200)
+                    .send({
+                        err: null,
+                        msg: "Erro ao adicionar lista"
+                    })
+                }
+            }
+        )
+    }
+
+
 
 
     //TEMP
@@ -296,6 +296,7 @@ export class UserValidation {
             exp: Math.floor(Date.now() / 1000) + ((60 * 60) + (30 * 60)),
             nbf: Math.floor(Date.now() / 1000),
         }
+
         const token = jwt.sign(
             dataToEncode,
             secret
