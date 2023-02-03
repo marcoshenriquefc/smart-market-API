@@ -176,7 +176,6 @@ export default class ListController {
     }
 
 
-
     //Function's to share list
 
     //to POST Method - Change who can view
@@ -190,53 +189,65 @@ export default class ListController {
             ])
             const dataUser = JSON.parse(JSON.stringify(data[1]));
             const userExist = await Validation.verifyIfuserCanView(list_id, dataUser._id );
+            const userIsOwner = await Validation.verifyUserIsOwner(list_id, dataUser._id)
 
-            if(!userExist) {
-                if(data[0] && !!data[1]){
-                    ListModel.findOneAndUpdate(
-                        { _id : list_id },
-                        {
-                            $push: {
-                                "user_can_view": dataUser._id
-                            }
-                        },
-                        (err) =>{
-                            if(!err){
-                                res
-                                    .status(200)
-                                    .send({
-                                        err: null,
-                                        msg: "Adicionado com sucesso"
-                                    })
-                            }
-                            else{
-                                res
-                                    .status(500)
-                                    .send({
-                                        err: err.message,
-                                        msg: 'erro'
-                                    })
-                            }
-                        }
-                    )
-                }
-                else{
-                    res
-                        .status(200)
-                        .send({
-                            err: 'listOrUserNotFound',
-                            msg: 'Lista ou usuario nao encontrado'
-                        })
-                }
-            }
-            else{
+            if(userIsOwner){
                 res
                     .status(500)
                     .send({
-                        err: 'userExist',
-                        msg: 'Usuário ja existe'
+                        err: 'userIsOwner',
+                        msg: 'Usuário ja é o dono da lista'
                     })
             }
+            else{
+                if(!userExist) {
+                    if(data[0] && !!data[1]){
+                        ListModel.findOneAndUpdate(
+                            { _id : list_id },
+                            {
+                                $push: {
+                                    "user_can_view": dataUser._id
+                                }
+                            },
+                            (err) =>{
+                                if(!err){
+                                    res
+                                        .status(200)
+                                        .send({
+                                            err: null,
+                                            msg: "Adicionado com sucesso"
+                                        })
+                                }
+                                else{
+                                    res
+                                        .status(500)
+                                        .send({
+                                            err: err.message,
+                                            msg: 'erro'
+                                        })
+                                }
+                            }
+                        )
+                    }
+                    else{
+                        res
+                            .status(200)
+                            .send({
+                                err: 'listOrUserNotFound',
+                                msg: 'Lista ou usuario nao encontrado'
+                            })
+                    }
+                }
+                else{
+                    res
+                        .status(500)
+                        .send({
+                            err: 'userExist',
+                            msg: 'Usuário ja existe'
+                        })
+                }
+            }
+
 
         }
     }
@@ -373,6 +384,7 @@ class Validation {
         if(item === null){
             return false
         }
+
         
         const idUserCanView = JSON.parse(JSON.stringify(item.user_can_view))[0];
 
@@ -381,6 +393,22 @@ class Validation {
         }
         else {
             return false;
+        }
+    }
+
+    static async verifyUserIsOwner(idList, idUser){
+        const item = await ListModel.findOne(
+            { _id: idList},
+            { "_id" : 0, "user_id": 1 }
+        );
+
+        const userIdList = JSON.parse(JSON.stringify(item.user_id));
+
+        if(userIdList === idUser){
+            return true
+        }
+        else{
+            return false
         }
     }
 }
