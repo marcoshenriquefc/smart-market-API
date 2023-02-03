@@ -56,7 +56,7 @@ export class UserController {
         // User exist
         const userEmailExist = await UserValidation.verifyEmail(email);
         if (userEmailExist) {
-            return res
+            return resverifyEmail
                 .status(422)
                 .send({
                     err: "userExist",
@@ -235,7 +235,6 @@ export class UserController {
         const idUser = req.body.idUser;
         const idList = req.body.idList;
 
-
         UserModel.updateOne(
             {
                 _id: idUser 
@@ -285,8 +284,8 @@ export class UserValidation {
         return await bcrypt.compare(pass, userPass)
     }
 
-    static async verifyEmail(emailUser) {
-        return await UserModel.findOne({ email: emailUser })
+    static async verifyEmail(emailUser, remove = '') {
+        return await UserModel.findOne({ email: emailUser }, remove)
     }
 
     static createToken(idUser) {

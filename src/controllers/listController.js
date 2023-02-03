@@ -1,4 +1,5 @@
 import ListModel from '../models/listModel.js'
+import { UserValidation } from './userController.js';
 
 export default class ListController {
     //to GET Method - list all products
@@ -48,7 +49,7 @@ export default class ListController {
     }
 
     //to POST Methods - Add itens in itens_list
-    static updateItensList = async (req, res) => {
+    static addItensList = async (req, res) => {
         const { list_id, ...product } = req.body;
         const prodCheck = Validation.verifyObjectToSend(product)
 
@@ -172,6 +173,59 @@ export default class ListController {
                     err: 'listItemIDNotFound',
                     msg: 'Item ou Lista não encontrado'
                 })
+        }
+    }
+
+    //to PUT Method - Change who can view
+    static addWhoCanView = async (req, res) => {
+        const { list_id, email_user } = req.body;
+
+        if(list_id && email_user){
+            const data = await Promise.all([
+                Validation.verifyIDList(list_id),
+                UserValidation.verifyEmail(email_user),
+            ])
+
+            const dataUser = JSON.parse(JSON.stringify(data[1]));
+
+            if(data[0] && !!data[1]){
+                ListModel.findOneAndUpdate(
+                    { _id : list_id },
+                    {
+                        $push: {
+                            "user_can_view": dataUser._id
+                        }
+                    },
+                    (err) =>{
+                        if(!err){
+                            res
+                                .status(200)
+                                .send({
+                                    err: null,
+                                    msg: "Adicionado com sucesso"
+                                })
+                        }
+                        else{
+                            res
+                                .status(500)
+                                .send({
+                                    err: err.message,
+                                    msg: 'erro'
+                                })
+                        }
+                    }
+                )
+            }
+            else{
+                res
+                    .status(200)
+                    .send({
+                        err: 'listOrUserNotFound',
+                        msg: 'Lista ou usuario nao encontrado'
+                    })
+                
+            }
+
         }
     }
 }
