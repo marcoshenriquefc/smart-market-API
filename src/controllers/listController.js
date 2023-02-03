@@ -6,7 +6,6 @@ export default class ListController {
     static listAllProduct = (req, res) => {
         const id = req.query;
 
-        console.log()
         if(Object.keys(id).length <= 0 || !Object.keys(id).includes('user_id')) {
             return res
                 .status(500)
@@ -176,7 +175,11 @@ export default class ListController {
         }
     }
 
-    //to PUT Method - Change who can view
+
+
+    //Function's to share list
+
+    //to POST Method - Change who can view
     static addWhoCanView = async (req, res) => {
         const { list_id, email_user } = req.body;
 
@@ -288,10 +291,35 @@ export default class ListController {
 
         
     }
+
+    //to GET Method - Get all user who can view
+    static getWhoCanView = async (req, res) => {
+        const { list_id } = req.body;
+
+        ListModel.findById(list_id,
+            {"_id" : 0 ,"user_can_view" : 1},            
+        )
+        .exec(
+                (err, listUser) => {
+                    if(!err){
+                        res
+                            .status(200)
+                            .send(listUser)
+                    }
+                    else{
+                        res
+                            .status(404)
+                            .send({
+                                err: 'notFound',
+                                msg: err.message
+                            })
+                    }
+                }
+            )
+    }
 }
 
 class Validation {
-
     static verifyObjectToSend(prod) {
         if (
             prod.id_item &&

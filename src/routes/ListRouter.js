@@ -10,7 +10,8 @@ router
     .post("/listProduct/item"       , ValidationAuth.checkToken, ListController.addItensList)   // Add item to list
     .put("/listProduct/removeItem"  , ValidationAuth.checkToken, ListController.deleteItemList) // Remove item on list
     .put("/listProduct/updateItem"  , ValidationAuth.checkToken, ListController.updateItemList) // Update item to list
-    .put("/listProduct/addCanView"  , ValidationAuth.checkToken, ListController.addWhoCanView)  // Add new user can view the list
-    .put("/listProduct/removeCanView"  , ValidationAuth.checkToken, ListController.removeWhoCanView)// Remove user can view the list
+    .post("/listProduct/addCanView"  , ValidationAuth.checkToken, ListController.addWhoCanView)  // Add new user can view the list
+    .put("/listProduct/removeCanView", ValidationAuth.checkToken, ListController.removeWhoCanView)// Remove user can view the list
+    .get("/listProduct/getCanView"   , ValidationAuth.checkToken, ListController.getWhoCanView)  // Get all user can view the list
 
 export default router
