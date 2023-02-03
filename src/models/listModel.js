@@ -9,14 +9,17 @@ const ListSchema = new mongoose.Schema(
             required : true
         },
         user_can_view: {
-            typeof  : Array,
+            type  : [{
+                type: mongoose.Schema.Types.ObjectId,
+                ref: "user",
+            }],
         },
-        year_save: {
+        year_created: {
             type    : Number,
             required : true
         },
-        mounth_save: {
-            type    : String,
+        mounth_created: {
+            type    : Number,
             required : true
         },
         itens_list : {
@@ -26,6 +29,10 @@ const ListSchema = new mongoose.Schema(
         total: {
             type    : Number,
             required : true
+        },
+        savedList: {
+            type: Boolean,
+            required: true
         }
     }
 );

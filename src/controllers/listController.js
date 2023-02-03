@@ -7,6 +7,15 @@ export default class ListController {
         const dataToFilter = req.query;
         const id = req.query;
 
+        if(Object.keys(id).length <= 0) {
+            return res
+                .status(500)
+                .send({
+                    err : 'noParams',
+                    msg : 'Nenhum parâmetro enviado'
+                })
+        }
+
         ListModel.find(id)
             .populate("user_id", "email")
             .exec((err, ListFind) => {

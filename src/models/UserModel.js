@@ -15,9 +15,6 @@ const UserSchema = new mongoose.Schema(
             type: String,
             required: true
         },
-        lists_product: {
-            type: Array
-        }
     }
 )
 
