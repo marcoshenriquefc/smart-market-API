@@ -1,7 +1,6 @@
 import ListModel from '../models/listModel.js'
 
 export default class ListController {
-
     //to GET Method - list all products
     static listAllProduct = (req, res) => {
         const id = req.query;
@@ -89,8 +88,10 @@ export default class ListController {
 
         if (id_item && list_id) {
 
-            Validation.verifyIDList(list_id);
-            Validation.verifyIDItem(list_id, id_item);
+            await Promise.all([
+                Validation.verifyIDList(list_id),
+                Validation.verifyIDItem(list_id, id_item)
+            ])
 
             ListModel.updateOne(
                 { _id: list_id },
@@ -119,14 +120,14 @@ export default class ListController {
         }
     }
 
-    //to PUT Method -
+    //to PUT Method - Update item in itens_list
     static updateItemList = async (req, res) => {
         const { list_id, ...itemUpdate } = req.body
 
         // const checkIdList = await Validation.verifyIDList(list_id, res);
-        const checkIdItem = await Validation.verifyIDItem(list_id, itemUpdate.id_item);
+        const verifyIdItem = await Validation.verifyIDItem(list_id, itemUpdate.id_item);
 
-        if (checkIdItem) {
+        if (verifyIdItem) {
             //Take object in DB
             const itemList = await ListModel.findOne(
                 { _id: list_id, "itens_list.id_item": itemUpdate.id_item },
@@ -194,28 +195,27 @@ class Validation {
         }
     }
 
-    // static async verifyIDList(idList, res) {
+    static async verifyIDList(idList) {
 
-    //     try {
-    //         ListModel.findById(
-    //             { _id: idList }
-    //         )
+        const item = await ListModel.findOne(
+            { _id: idList }
+        )
 
-    //         return true
-    //     }
-    //     catch(err) {
-    //         return false
-    //     }
-
-    // }
+        if(item === null) {
+            return false
+        }
+        else {
+            return true
+        }
+    }
 
     static async verifyIDItem(idList, idItem) {
-        const i = await ListModel.findOne(
+        const item = await ListModel.findOne(
             { _id: idList, "itens_list.id_item": idItem },
             { "itens_list.$": 1 }
         )
 
-        if (i === null) {
+        if (item === null) {
             return false
         }
         else {
