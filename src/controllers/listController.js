@@ -186,10 +186,8 @@ export default class ListController {
                 UserValidation.verifyEmail(email_user),
             ])
             const dataUser = JSON.parse(JSON.stringify(data[1]));
-
-
             const userExist = await Validation.verifyIfuserCanView(list_id, dataUser._id );
-            
+
             if(!userExist) {
                 if(data[0] && !!data[1]){
                     ListModel.findOneAndUpdate(
@@ -238,6 +236,57 @@ export default class ListController {
             }
 
         }
+    }
+
+    //to PUT Method - Remove who can view
+    static removeWhoCanView = async (req, res) => {
+        const { list_id, email_user } = req.body;
+
+        if(list_id && email_user){
+            const data = await Promise.all([
+                Validation.verifyIDList(list_id),
+                UserValidation.verifyEmail(email_user),
+            ])
+            const dataUser = JSON.parse(JSON.stringify(data[1]));
+            const userExist = await Validation.verifyIfuserCanView(list_id, dataUser._id);
+
+            if(userExist && data[0]){
+                ListModel.updateOne(
+                    { _id: list_id },
+                    {
+                        $pull: { "user_can_view": dataUser._id }
+                    },
+                    (err) => {
+                        if (!err) {
+                            res
+                                .status(200)
+                                .send({
+                                    err: null,
+                                    msg: "Usuário removido com sucesso"
+                                })
+                        }
+                    }
+                )
+            }
+            else{
+                res
+                    .status(500)
+                    .send({
+                        err: 'userOrListNotFound',
+                        msg: 'Usuário ou lista não encontrado'
+                    })
+            }
+        }
+        else {
+            res
+                .status(500)
+                .send({
+                    err: "noIDSend",
+                    msg: "Não foi possível remover os itens, verifique se os dados"
+                })
+        }
+
+        
     }
 }
 
