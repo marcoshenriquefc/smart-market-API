@@ -4,15 +4,15 @@ export default class ListController {
 
     //to GET Method - list all products
     static listAllProduct = (req, res) => {
-        const dataToFilter = req.query;
         const id = req.query;
 
-        if(Object.keys(id).length <= 0) {
+        console.log()
+        if(Object.keys(id).length <= 0 || !Object.keys(id).includes('user_id')) {
             return res
                 .status(500)
                 .send({
                     err : 'noParams',
-                    msg : 'Nenhum parâmetro enviado'
+                    msg : 'Nenhum parâmetro enviado ou falta ID'
                 })
         }
 
@@ -39,16 +39,18 @@ export default class ListController {
                 else {
                     res
                         .status(500)
-                        .send(`${err} - Houve um erro ao cadastrar`)
+                        .send({
+                            err: err.message,
+                            msg: 'Houve um erro ao cadastrar'
+                        })
                 }
             })
         }
     }
 
-    //to POST Methods - Change itens in itens_list
+    //to POST Methods - Add itens in itens_list
     static updateItensList = async (req, res) => {
-        const { list_id, ...product } = req.body
-
+        const { list_id, ...product } = req.body;
         const prodCheck = Validation.verifyObjectToSend(product)
 
         if (list_id && prodCheck) {
@@ -75,7 +77,7 @@ export default class ListController {
             res
                 .status(500)
                 .send({
-                    err: 'invalidCamp',
+                    err: 'invalidField',
                     msg: `Erro ao cadastrar o produto, verifique os campos enviados`
                 })
         }
@@ -163,7 +165,6 @@ export default class ListController {
 
         }
         else {
-
             res
                 .status(404)
                 .send({
@@ -183,7 +184,8 @@ class Validation {
             prod.name &&
             prod.price &&
             prod.total &&
-            prod.checked != null
+            prod.checked != null &&
+            prod.checked != undefined
         ) {
             return true
         }

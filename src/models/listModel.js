@@ -30,7 +30,7 @@ const ListSchema = new mongoose.Schema(
             type    : Number,
             required : true
         },
-        savedList: {
+        saved_list: {
             type: Boolean,
             required: true
         }
