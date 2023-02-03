@@ -8,8 +8,8 @@ router
     .get("/listProduct/seach"       , ValidationAuth.checkToken, ListController.listAllProduct) // Get all lists
     .post("/listProduct"            , ValidationAuth.checkToken, ListController.createNewList)  // Create a new list
     .post("/listProduct/item"       , ValidationAuth.checkToken, ListController.addItensList)   // Add item to list
-    .put("/listProduct/removeItem"  , ValidationAuth.checkToken, ListController.deleteItemList) 
+    .put("/listProduct/removeItem"  , ValidationAuth.checkToken, ListController.deleteItemList) // Remove item on list
     .put("/listProduct/updateItem"  , ValidationAuth.checkToken, ListController.updateItemList) // Update item to list
-    .put("/listProduct/teste"       , ValidationAuth.checkToken, ListController.addWhoCanView)  //
+    .put("/listProduct/addCanView"  , ValidationAuth.checkToken, ListController.addWhoCanView)  // Add new user can view a list
 
 export default router

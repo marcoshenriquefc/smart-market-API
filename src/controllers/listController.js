@@ -185,45 +185,56 @@ export default class ListController {
                 Validation.verifyIDList(list_id),
                 UserValidation.verifyEmail(email_user),
             ])
-
             const dataUser = JSON.parse(JSON.stringify(data[1]));
 
-            if(data[0] && !!data[1]){
-                ListModel.findOneAndUpdate(
-                    { _id : list_id },
-                    {
-                        $push: {
-                            "user_can_view": dataUser._id
+
+            const userExist = await Validation.verifyIfuserCanView(list_id, dataUser._id );
+            
+            if(!userExist) {
+                if(data[0] && !!data[1]){
+                    ListModel.findOneAndUpdate(
+                        { _id : list_id },
+                        {
+                            $push: {
+                                "user_can_view": dataUser._id
+                            }
+                        },
+                        (err) =>{
+                            if(!err){
+                                res
+                                    .status(200)
+                                    .send({
+                                        err: null,
+                                        msg: "Adicionado com sucesso"
+                                    })
+                            }
+                            else{
+                                res
+                                    .status(500)
+                                    .send({
+                                        err: err.message,
+                                        msg: 'erro'
+                                    })
+                            }
                         }
-                    },
-                    (err) =>{
-                        if(!err){
-                            res
-                                .status(200)
-                                .send({
-                                    err: null,
-                                    msg: "Adicionado com sucesso"
-                                })
-                        }
-                        else{
-                            res
-                                .status(500)
-                                .send({
-                                    err: err.message,
-                                    msg: 'erro'
-                                })
-                        }
-                    }
-                )
+                    )
+                }
+                else{
+                    res
+                        .status(200)
+                        .send({
+                            err: 'listOrUserNotFound',
+                            msg: 'Lista ou usuario nao encontrado'
+                        })
+                }
             }
             else{
                 res
-                    .status(200)
+                    .status(500)
                     .send({
-                        err: 'listOrUserNotFound',
-                        msg: 'Lista ou usuario nao encontrado'
+                        err: 'userExist',
+                        msg: 'Usuário ja existe'
                     })
-                
             }
 
         }
@@ -267,13 +278,32 @@ class Validation {
         const item = await ListModel.findOne(
             { _id: idList, "itens_list.id_item": idItem },
             { "itens_list.$": 1 }
-        )
+        );
 
         if (item === null) {
-            return false
+            return false;
         }
         else {
-            return true
+            return true;
+        }
+    }
+
+    static async verifyIfuserCanView(idList, idUser){
+        const item = await ListModel.findOne(
+            { _id: idList, "user_can_view": idUser },
+            { "user_can_view.$": 1 }
+        );
+        if(item === null){
+            return false
+        }
+        
+        const idUserCanView = JSON.parse(JSON.stringify(item.user_can_view))[0];
+
+        if (idUserCanView === idUser) {
+            return true;
+        }
+        else {
+            return false;
         }
     }
 }
