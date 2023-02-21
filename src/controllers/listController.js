@@ -125,20 +125,25 @@ export default class ListController {
         const { list_id, ...itemUpdate } = req.body
 
         // const checkIdList = await Validation.verifyIDList(list_id, res);
-        const verifyIdItem = await Validation.verifyIDItem(list_id, itemUpdate.id_item);
+        console.log('>>>>>>>>>>>>>>>>>> ', itemUpdate.itemUpdate.id_item)
+        const verifyIdItem = await Validation.verifyIDItem(list_id, itemUpdate.itemUpdate.id_item);
 
         if (verifyIdItem) {
             //Take object in DB
             const itemList = await ListModel.findOne(
-                { _id: list_id, "itens_list.id_item": itemUpdate.id_item },
+                { _id: list_id, "itens_list.id_item": itemUpdate.itemUpdate.id_item },
                 { "itens_list.$": 1 }
             )
 
+            console.log(' LA LA LA  ------------------- ', itemUpdate)
             //Cross the object
-            const newProduct = Object.assign(itemList.itens_list[0], itemUpdate);
+            const newProduct = Object.assign(itemList.itens_list[0], itemUpdate.itemUpdate);
+
+            
+            console.log(' AQUI AQUI ------------------- ', newProduct)
 
             ListModel.updateOne(
-                { _id: list_id, "itens_list.id_item": itemUpdate.id_item },
+                { _id: list_id, "itens_list.id_item": itemUpdate.itemUpdate.id_item },
                 {
                     $set: {
                         "itens_list.$": newProduct
@@ -368,6 +373,9 @@ class Validation {
             { "itens_list.$": 1 }
         );
 
+        console.log('-----------------------',idItem)
+        console.log(item)
+        
         if (item === null) {
             return false;
         }
