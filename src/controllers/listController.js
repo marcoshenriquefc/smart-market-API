@@ -125,7 +125,6 @@ export default class ListController {
         const { list_id, ...itemUpdate } = req.body
 
         // const checkIdList = await Validation.verifyIDList(list_id, res);
-        console.log('>>>>>>>>>>>>>>>>>> ', itemUpdate.itemUpdate.id_item)
         const verifyIdItem = await Validation.verifyIDItem(list_id, itemUpdate.itemUpdate.id_item);
 
         if (verifyIdItem) {
@@ -135,12 +134,9 @@ export default class ListController {
                 { "itens_list.$": 1 }
             )
 
-            console.log(' LA LA LA  ------------------- ', itemUpdate)
             //Cross the object
             const newProduct = Object.assign(itemList.itens_list[0], itemUpdate.itemUpdate);
 
-            
-            console.log(' AQUI AQUI ------------------- ', newProduct)
 
             ListModel.updateOne(
                 { _id: list_id, "itens_list.id_item": itemUpdate.itemUpdate.id_item },
@@ -337,12 +333,13 @@ export default class ListController {
 
 class Validation {
     static verifyObjectToSend(prod) {
+
         if (
             prod.id_item &&
             prod.quantity &&
             prod.name &&
-            prod.price &&
-            prod.total &&
+            prod.price >= 0 &&
+            prod.total >= 0 &&
             prod.checked != null &&
             prod.checked != undefined
         ) {
@@ -372,9 +369,6 @@ class Validation {
             { _id: idList, "itens_list.id_item": idItem },
             { "itens_list.$": 1 }
         );
-
-        console.log('-----------------------',idItem)
-        console.log(item)
         
         if (item === null) {
             return false;
