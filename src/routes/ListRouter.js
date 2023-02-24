@@ -7,6 +7,8 @@ const router = express.Router()
 router
     .get("/listProduct/seach"       , ValidationAuth.checkToken, ListController.listAllProduct) // Get all lists
     .post("/listProduct"            , ValidationAuth.checkToken, ListController.createNewList)  // Create a new list
+    .put("/listProduct/total"           , ListController.updateTotalList) // Update Total list
+    .put("/listProduct/saveList"    , ListController.saveList)
     .post("/listProduct/item"       , ValidationAuth.checkToken, ListController.addItensList)   // Add item to list
     .put("/listProduct/removeItem"  , ValidationAuth.checkToken, ListController.deleteItemList) // Remove item on list
     .put("/listProduct/updateItem"  , ValidationAuth.checkToken, ListController.updateItemList) // Update item to list

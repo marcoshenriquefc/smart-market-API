@@ -47,6 +47,105 @@ export default class ListController {
         }
     }
 
+    //to PUT Method - Update a list
+    static updateTotalList = async (req, res) => {
+        const { list_id, total } = req.body;
+
+        if (total < 0 || typeof total != "number") {
+            res
+                .status(500)
+                .send({
+                    err : "totalError",
+                    msg : "Valor total invalido"
+                })
+        }
+        else {
+            console.log('aqui')
+            const listExist = await Validation.verifyIDList(list_id);
+            if(listExist) {
+                ListModel.updateOne(
+                    { _id: list_id },
+                    {
+                        $set: {
+                            'total' : total
+                        }
+                    },
+                    (err) => {
+                        if(!err) {
+                            res
+                                .status(200)
+                                .send({
+                                    err: null,
+                                    msg: 'total atualizado'
+                                })
+                        }
+                        else {
+                            res
+                                .status(500)
+                                .send({
+                                    err: "editTotal",
+                                    msg: "Erro ao editar valor"
+                                })
+                        }
+                    }
+                )
+            }
+            else {
+                res
+                    .status(404)
+                    .send({
+                        err : "listNotFount",
+                        msg : "Lista não encontrada"
+                    })
+            }
+        }
+        
+    }
+
+    //to PUT Method - Close/save list
+    static saveList = async (req, res) => {
+        const {list_id} = req.body;
+
+        const listExist = await Validation.verifyIDList(list_id);
+
+        if(listExist) {
+            ListModel.updateOne(
+                { _id: list_id },
+                {
+                    $set: {
+                        'saved_list' : true
+                    }
+                },
+                (err) => {
+                    if(!err) {
+                        res
+                            .status(200)
+                            .send({
+                                err: null,
+                                msg: 'Lista salva com sucesso'
+                            })
+                    }
+                    else {
+                        res
+                            .status(500)
+                            .send({
+                                err: "failedSaveList",
+                                msg: "Erro salvar a lista"
+                            })
+                    }
+                }
+            )
+        }
+        else {
+            res
+                .status(404)
+                .send({
+                    err : "listNotFount",
+                    msg : "Lista não encontrada"
+                })
+        }
+    }
+
     //to POST Methods - Add itens in itens_list
     static addItensList = async (req, res) => {
         const { list_id, ...product } = req.body;
@@ -332,8 +431,8 @@ export default class ListController {
 }
 
 class Validation {
+    // to Verify object item to list
     static verifyObjectToSend(prod) {
-
         if (
             prod.id_item &&
             prod.quantity &&
@@ -350,18 +449,25 @@ class Validation {
         }
     }
 
+    // to verify id List exist
     static async verifyIDList(idList) {
 
-        const item = await ListModel.findOne(
-            { _id: idList }
-        )
+        try {
+            const item = await ListModel.findOne(
+                { _id: idList },
+            )
 
-        if(item === null) {
-            return false
+            if(item === null) {
+                return false
+            }
+            else {
+                return true
+            }
+        } catch (error) {
+            return false   
+         
         }
-        else {
-            return true
-        }
+
     }
 
     static async verifyIDItem(idList, idItem) {
