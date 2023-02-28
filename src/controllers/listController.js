@@ -287,66 +287,78 @@ export default class ListController {
                 Validation.verifyIDList(list_id),
                 UserValidation.verifyEmail(email_user),
             ])
-            const dataUser = JSON.parse(JSON.stringify(data[1]));
-            const userExist = await Validation.verifyIfuserCanView(list_id, dataUser._id );
-            const userIsOwner = await Validation.verifyUserIsOwner(list_id, dataUser._id)
 
-            if(userIsOwner){
+            if(!data[0]) {
                 res
-                    .status(500)
+                    .status(404)
                     .send({
-                        err: 'userIsOwner',
-                        msg: 'Usuário ja é o dono da lista'
+                        err: 'listNotFound',
+                        msg: 'This list is not found'
                     })
             }
             else{
-                if(!userExist) {
-                    if(data[0] && !!data[1]){
-                        ListModel.findOneAndUpdate(
-                            { _id : list_id },
-                            {
-                                $push: {
-                                    "user_can_view": dataUser._id
-                                }
-                            },
-                            (err) =>{
-                                if(!err){
-                                    res
-                                        .status(200)
-                                        .send({
-                                            err: null,
-                                            msg: "Adicionado com sucesso"
-                                        })
-                                }
-                                else{
-                                    res
-                                        .status(500)
-                                        .send({
-                                            err: err.message,
-                                            msg: 'erro'
-                                        })
-                                }
-                            }
-                        )
-                    }
-                    else{
-                        res
-                            .status(200)
-                            .send({
-                                err: 'listOrUserNotFound',
-                                msg: 'Lista ou usuario nao encontrado'
-                            })
-                    }
-                }
-                else{
+                const dataUser = JSON.parse(JSON.stringify(data[1]));
+                const userExist = await Validation.verifyIfuserCanView(list_id, dataUser._id );
+                const userIsOwner = await Validation.verifyUserIsOwner(list_id, dataUser._id)
+    
+                if(userIsOwner){
                     res
                         .status(500)
                         .send({
-                            err: 'userExist',
-                            msg: 'Usuário ja existe'
+                            err: 'userIsOwner',
+                            msg: 'Usuário ja é o dono da lista'
                         })
                 }
+                else{
+                    if(!userExist) {
+                        if(data[0] && !!data[1]){
+                            ListModel.findOneAndUpdate(
+                                { _id : list_id },
+                                {
+                                    $push: {
+                                        "user_can_view": dataUser._id
+                                    }
+                                },
+                                (err) =>{
+                                    if(!err){
+                                        res
+                                            .status(200)
+                                            .send({
+                                                err: null,
+                                                msg: "Adicionado com sucesso"
+                                            })
+                                    }
+                                    else{
+                                        res
+                                            .status(500)
+                                            .send({
+                                                err: err.message,
+                                                msg: 'erro'
+                                            })
+                                    }
+                                }
+                            )
+                        }
+                        else{
+                            res
+                                .status(200)
+                                .send({
+                                    err: 'listOrUserNotFound',
+                                    msg: 'Lista ou usuario nao encontrado'
+                                })
+                        }
+                    }
+                    else{
+                        res
+                            .status(500)
+                            .send({
+                                err: 'userExist',
+                                msg: 'Usuário ja existe'
+                            })
+                    }
+                }
             }
+
 
 
         }
@@ -457,15 +469,16 @@ class Validation {
                 { _id: idList },
             )
 
+            // if list dont exist return false
             if(item === null) {
                 return false
             }
+            // if list exist return true
             else {
                 return true
             }
         } catch (error) {
             return false   
-         
         }
 
     }
