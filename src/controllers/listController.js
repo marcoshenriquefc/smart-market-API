@@ -422,9 +422,11 @@ export default class ListController {
         ListModel.findById(list_id,
             {"_id" : 0 ,"user_can_view" : 1},            
         )
+        .populate("user_can_view", "email")
         .exec(
                 (err, listUser) => {
                     if(!err){
+                        
                         res
                             .status(200)
                             .send(listUser)
@@ -439,6 +441,69 @@ export default class ListController {
                     }
                 }
             )
+    }
+
+    //to GET Methods - Lists all lists shared 
+    static getListShared = async (req, res) => {
+        const {user_id} = req.body;
+
+        console.log('aqui')
+        ListModel
+            .find(
+                {"user_can_view": user_id }, "-user_can_view -user_id"
+            )
+            .exec((err, shared) => {
+                res.status(200).json(shared);
+            })
+
+    }
+
+    
+    //to VERIFY Methods - 
+    static verifyListShared = async (req, res, next) => {
+        const { list_id, user_id } = req.body;
+        const isMyList = await Validation.verifyMyList(list_id, user_id);
+
+        
+        console.log('ponto 1')
+        if(!isMyList) {
+            ListModel.findOne(
+                { _id: list_id, "user_can_view": user_id },
+                { "_id": 1 },            
+            )
+            .populate("user_can_view", "email")
+            .exec(
+                    (err, listUser) => {
+                        if(!err){
+                            if(listUser) {
+                                
+                                console.log('ponto 2')
+                                next()
+                            }
+                            else {
+                                res
+                                    .status(401)
+                                    .send({
+                                        err: 'notAutorization',
+                                        msg: 'User cant change list'
+                                    })
+                            }
+                        }
+                        else{
+                            res
+                                .status(404)
+                                .send({
+                                    err: 'notFound',
+                                    msg: err.message
+                                })
+                        }
+                    }
+                )
+        }
+        else {
+            console.log('ponto 3')
+            next()
+        }
     }
 }
 
@@ -529,6 +594,21 @@ class Validation {
             return true
         }
         else{
+            return false
+        }
+    }
+
+
+    static async verifyMyList(idList, idUser) {
+        const myList = await ListModel.findOne(
+            { _id: idList, "user_id": idUser },
+            { "_id": 1 },            
+        )
+
+        if(myList) {
+            return true
+        }
+        else {
             return false
         }
     }
