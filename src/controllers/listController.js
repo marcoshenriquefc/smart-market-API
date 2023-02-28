@@ -459,13 +459,11 @@ export default class ListController {
     }
 
     
-    //to VERIFY Methods - 
+    //to VERIFY Methods - Verify if user can edit list
     static verifyListShared = async (req, res, next) => {
         const { list_id, user_id } = req.body;
         const isMyList = await Validation.verifyMyList(list_id, user_id);
 
-        
-        console.log('ponto 1')
         if(!isMyList) {
             ListModel.findOne(
                 { _id: list_id, "user_can_view": user_id },
@@ -476,8 +474,6 @@ export default class ListController {
                     (err, listUser) => {
                         if(!err){
                             if(listUser) {
-                                
-                                console.log('ponto 2')
                                 next()
                             }
                             else {
@@ -501,7 +497,6 @@ export default class ListController {
                 )
         }
         else {
-            console.log('ponto 3')
             next()
         }
     }
