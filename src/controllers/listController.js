@@ -447,7 +447,6 @@ export default class ListController {
     static getListShared = async (req, res) => {
         const {user_id} = req.body;
 
-        console.log('aqui')
         ListModel
             .find(
                 {"user_can_view": user_id }, "-user_can_view -user_id"

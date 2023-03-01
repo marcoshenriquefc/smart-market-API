@@ -19,7 +19,7 @@ router
     .post("/listProduct/addCanView"     , ValidationAuth.checkToken, ListController.addWhoCanView)     // Add new user can view the list
     .put("/listProduct/removeCanView"   , ValidationAuth.checkToken, ListController.removeWhoCanView)  // Remove user can view the list
     .get("/listProduct/getCanView"      , ValidationAuth.checkToken, ListController.getWhoCanView)     // Get all user can view the list
-    .get("/listProduct/listsShared"     , ValidationAuth.checkToken, ListController.getListShared)     // Get all lists shared
+    .get("/listProduct/listsShared"     , ListController.getListShared)     // Get all lists shared
     .get("/test", ListController.verifyListShared, ListController.addItensList)
 
 export default router
