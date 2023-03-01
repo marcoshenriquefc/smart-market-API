@@ -445,7 +445,8 @@ export default class ListController {
 
     //to GET Methods - Lists all lists shared 
     static getListShared = async (req, res) => {
-        const {user_id} = req.body;
+        // const {user_id} = req.body;
+        const {user_id} = req.query
 
         ListModel
             .find(
