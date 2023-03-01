@@ -32,4 +32,38 @@ import jwt from "jsonwebtoken"
                     })
             }
         }
+
+        static checkValidate = (req, res) => {
+            const authHeader = req.headers['authorization']
+            const token = authHeader && authHeader.split(' ')[1]
+    
+            if(!token){
+                res
+                    .status(401)
+                    .send({
+                        err: 'noToken',
+                        msg: 'Acesso Negado'
+                    })
+            }
+    
+            try{
+                const secret = process.env.SECRET;
+                jwt.verify(token, secret)
+    
+                res
+                    .status(200)
+                    .send({
+                        err : null,
+                        msg: 'Autenticação com sucesso'
+                    })
+            }
+            catch(err){
+                res
+                    .status(401)
+                    .send({
+                        err: 'invalidToken',
+                        msg: 'Token inválido'
+                    })
+            }
+        }
     }
