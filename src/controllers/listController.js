@@ -17,6 +17,7 @@ export default class ListController {
 
         ListModel.find(id)
             .populate("user_id", "email")
+            .populate("user_can_view", "email")
             .exec((err, ListFind) => {
                 res
                     .status(200)
@@ -60,7 +61,6 @@ export default class ListController {
                 })
         }
         else {
-            console.log('aqui')
             const listExist = await Validation.verifyIDList(list_id);
             if(listExist) {
                 ListModel.updateOne(
