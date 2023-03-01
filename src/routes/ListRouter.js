@@ -5,21 +5,20 @@ import ValidationAuth from "./validationToken.js";
 const router = express.Router()
 
 router
-    .get("/listProduct/seach"       , ValidationAuth.checkToken, ListController.listAllProduct)     // Get all lists
-    .post("/listProduct"            , ValidationAuth.checkToken, ListController.createNewList)      // Create a new list
-    .put("/listProduct/total"       , ValidationAuth.checkToken, ListController.updateTotalList)    // Update Total list
-    .put("/listProduct/saveList"    , ValidationAuth.checkToken, ListController.saveList)           // Save list
+    .get("/listProduct/search"      , ValidationAuth.checkToken, ListController.listAllProduct)                                     // Get all lists -------- OK
+    .post("/listProduct"            , ValidationAuth.checkToken, ListController.createNewList)                                      // Create a new list ---- OK
+    .put("/listProduct/total"       , ValidationAuth.checkToken, ListController.verifyifCanEdit, ListController.updateTotalList)    // Update Total list ---- OK
+    .put("/listProduct/saveList"    , ValidationAuth.checkToken, ListController.verifyifCanEdit, ListController.saveList)           // Save list  ----------- OK
 
     // Item to list
-    .post("/listProduct/item"       , ValidationAuth.checkToken, ListController.addItensList)       // Add item to list
-    .put("/listProduct/removeItem"  , ValidationAuth.checkToken, ListController.deleteItemList)     // Remove item on list
-    .put("/listProduct/updateItem"  , ValidationAuth.checkToken, ListController.updateItemList)     // Update item to list
+    .post("/listProduct/item"       , ValidationAuth.checkToken, ListController.verifyifCanEdit, ListController.addItensList)       // Add item to list ----- OK
+    .put("/listProduct/updateItem"  , ValidationAuth.checkToken, ListController.verifyifCanEdit, ListController.updateItemList)     // Update item to list -- OK
+    .put("/listProduct/removeItem"  , ValidationAuth.checkToken, ListController.verifyifCanEdit, ListController.deleteItemList)     // Remove item on list -- OK
 
     // Who can viu
-    .post("/listProduct/addCanView"     , ValidationAuth.checkToken, ListController.addWhoCanView)     // Add new user can view the list
-    .put("/listProduct/removeCanView"   , ValidationAuth.checkToken, ListController.removeWhoCanView)  // Remove user can view the list
-    .get("/listProduct/getCanView"      , ValidationAuth.checkToken, ListController.getWhoCanView)     // Get all user can view the list
-    .get("/listProduct/listsShared"     , ListController.getListShared)     // Get all lists shared
-    .get("/test", ListController.verifyListShared, ListController.addItensList)
+    .post("/listProduct/addCanView"     , ValidationAuth.checkToken, ListController.verifyIfisOwner, ListController.addWhoCanView)      // Add user can view the list ------ OK
+    .get("/listProduct/getCanView"      , ValidationAuth.checkToken, ListController.verifyifCanEdit, ListController.getWhoCanView)      // Get all user can view the list -- OK
+    .put("/listProduct/removeCanView"   , ValidationAuth.checkToken, ListController.verifyIfisOwner, ListController.removeWhoCanView)   // Remove user can view the list --- OK
+    .get("/listProduct/listsShared"     , ValidationAuth.checkToken, ListController.getListShared)                                      // Get all lists shared ------------ OK
 
 export default router

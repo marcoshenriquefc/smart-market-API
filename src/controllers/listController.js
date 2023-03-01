@@ -4,18 +4,13 @@ import { UserValidation } from './userController.js';
 export default class ListController {
     //to GET Method - list all products
     static listAllProduct = (req, res) => {
-        const id = req.query;
-
-        if(Object.keys(id).length <= 0 || !Object.keys(id).includes('user_id')) {
-            return res
-                .status(500)
-                .send({
-                    err : 'noParams',
-                    msg : 'Nenhum parâmetro enviado ou falta ID'
-                })
+        const id = {
+            user_id: req.user._id
         }
+        const queryData = req.query;
+        const dataBody = Object.assign(id,queryData)
 
-        ListModel.find(id)
+        ListModel.find(dataBody)
             .populate("user_id", "email")
             .populate("user_can_view", "email")
             .exec((err, ListFind) => {
@@ -27,7 +22,8 @@ export default class ListController {
 
     //to POST Method - Create a new List to product
     static createNewList = (req, res) => {
-        const list = new ListModel(req.body);
+        const dataList = Object.assign({user_id : req.user._id}, req.body )
+        const list = new ListModel(dataList);
 
         if (list) {
             list.save((err) => {
@@ -52,8 +48,9 @@ export default class ListController {
     static updateTotalList = async (req, res) => {
         const { list_id, total } = req.body;
 
+
         if (total < 0 || typeof total != "number") {
-            res
+            return res
                 .status(500)
                 .send({
                     err : "totalError",
@@ -62,6 +59,7 @@ export default class ListController {
         }
         else {
             const listExist = await Validation.verifyIDList(list_id);
+
             if(listExist) {
                 ListModel.updateOne(
                     { _id: list_id },
@@ -76,7 +74,7 @@ export default class ListController {
                                 .status(200)
                                 .send({
                                     err: null,
-                                    msg: 'total atualizado'
+                                    msg: 'Valor total atualizado'
                                 })
                         }
                         else {
@@ -84,7 +82,7 @@ export default class ListController {
                                 .status(500)
                                 .send({
                                     err: "editTotal",
-                                    msg: "Erro ao editar valor"
+                                    msg: "Erro ao editar valor total"
                                 })
                         }
                     }
@@ -104,7 +102,7 @@ export default class ListController {
 
     //to PUT Method - Close/save list
     static saveList = async (req, res) => {
-        const {list_id} = req.body;
+        const { list_id } = req.body;
 
         const listExist = await Validation.verifyIDList(list_id);
 
@@ -149,7 +147,7 @@ export default class ListController {
     //to POST Methods - Add itens in itens_list
     static addItensList = async (req, res) => {
         const { list_id, ...product } = req.body;
-        const prodCheck = Validation.verifyObjectToSend(product)
+        const prodCheck = Validation.verifyObjectToSend(product);
 
         if (list_id && prodCheck) {
             ListModel.findOneAndUpdate(
@@ -224,21 +222,21 @@ export default class ListController {
         const { list_id, ...itemUpdate } = req.body
 
         // const checkIdList = await Validation.verifyIDList(list_id, res);
-        const verifyIdItem = await Validation.verifyIDItem(list_id, itemUpdate.itemUpdate.id_item);
+        const verifyIdItem = await Validation.verifyIDItem(list_id, itemUpdate.id_item);
 
         if (verifyIdItem) {
             //Take object in DB
             const itemList = await ListModel.findOne(
-                { _id: list_id, "itens_list.id_item": itemUpdate.itemUpdate.id_item },
+                { _id: list_id, "itens_list.id_item": itemUpdate.id_item },
                 { "itens_list.$": 1 }
             )
 
             //Cross the object
-            const newProduct = Object.assign(itemList.itens_list[0], itemUpdate.itemUpdate);
+            const newProduct = Object.assign(itemList.itens_list[0], itemUpdate);
 
 
             ListModel.updateOne(
-                { _id: list_id, "itens_list.id_item": itemUpdate.itemUpdate.id_item },
+                { _id: list_id, "itens_list.id_item": itemUpdate.id_item },
                 {
                     $set: {
                         "itens_list.$": newProduct
@@ -446,7 +444,8 @@ export default class ListController {
     //to GET Methods - Lists all lists shared 
     static getListShared = async (req, res) => {
         // const {user_id} = req.body;
-        const {user_id} = req.query
+        // const {user_id} = req.query
+        const user_id = req.user._id
 
         ListModel
             .find(
@@ -458,10 +457,10 @@ export default class ListController {
 
     }
 
-    
     //to VERIFY Methods - Verify if user can edit list
-    static verifyListShared = async (req, res, next) => {
-        const { list_id, user_id } = req.body;
+    static verifyifCanEdit = async (req, res, next) => {
+        const { list_id } = req.body;
+        const user_id = req.user._id;
         const isMyList = await Validation.verifyMyList(list_id, user_id);
 
         if(!isMyList) {
@@ -474,7 +473,8 @@ export default class ListController {
                     (err, listUser) => {
                         if(!err){
                             if(listUser) {
-                                next()
+                                console.log('Is shared', user_id);
+                                return next();
                             }
                             else {
                                 res
@@ -497,7 +497,27 @@ export default class ListController {
                 )
         }
         else {
+            console.log('is my list', user_id);
             next()
+        }
+    }
+
+    static verifyIfisOwner = async (req, res, next) => {
+        const { list_id } = req.body;
+        const user_id = req.user._id;
+        const isMyList = await Validation.verifyMyList(list_id, user_id);
+
+        if(isMyList) {
+            console.log('is my list', user_id);
+            next()
+        }
+        else {
+            res
+                .status(401)
+                .send({
+                    err: 'notAutorization',
+                    msg: 'Usuário não pode alterar'
+                })
         }
     }
 }

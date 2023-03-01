@@ -161,7 +161,6 @@ export class UserController {
     // to POST Method - Validate Token on cookie's
     static validateUserToken = async (req, res) => {
         try {
-            console.log(req.body)
             const idClient = req.body.idUser
             const tokenClient = req.body.tokenUser;
             const secret = process.env.SECRET
@@ -202,10 +201,6 @@ export class UserController {
                         msg: "TOKEN INVALIDO"
                     })
             }
-
-
-
-
         }
         catch (err) {
             console.log(err)
@@ -291,16 +286,17 @@ export class UserValidation {
     static createToken(idUser) {
         const secret = process.env.SECRET
         const dataToEncode = {
-            id: idUser.id,
+            id: idUser,
             exp: Math.floor(Date.now() / 1000) + ((60 * 60) + (30 * 60)),
             nbf: Math.floor(Date.now() / 1000),
         }
+
 
         const token = jwt.sign(
             dataToEncode,
             secret
         )
-
+        
         return token
     }
 }
