@@ -6,10 +6,11 @@ const router = express.Router()
 
 router
     .get("/listProduct/search"      , ValidationAuth.checkToken, ListController.listAllProduct)                                     // Get all lists -------- OK
-    .get("/listProduct/singleList"  , ValidationAuth.checkToken, ListController.verifyifCanEdit, ListController.singleListProduct)  // Get single lists ----- 
+    .get("/listProduct/singleList"  , ValidationAuth.checkToken, ListController.verifyifCanEdit, ListController.singleListProduct)  // Get single lists ----- OK
     .post("/listProduct"            , ValidationAuth.checkToken, ListController.createNewList)                                      // Create a new list ---- OK
     .put("/listProduct/total"       , ValidationAuth.checkToken, ListController.verifyifCanEdit, ListController.updateTotalList)    // Update Total list ---- OK
     .put("/listProduct/saveList"    , ValidationAuth.checkToken, ListController.verifyifCanEdit, ListController.saveList)           // Save list  ----------- OK
+    .delete("/listProduct/remove"   , ValidationAuth.checkToken, ListController.verifyIfisOwner, )  
 
     // Item to list
     .post("/listProduct/item"       , ValidationAuth.checkToken, ListController.verifyifCanEdit, ListController.addItensList)       // Add item to list ----- OK

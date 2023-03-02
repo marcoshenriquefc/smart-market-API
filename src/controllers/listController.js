@@ -167,6 +167,35 @@ export default class ListController {
         }
     }
 
+    static deleteList = async (req,res) => {
+        const list_id = 
+
+
+        ListModel.deleteOne(
+            { _id: list_id },
+            (err) => {
+                if(!err) {
+                    return res
+                        .status(200)
+                        .send({
+                            err: null,
+                            msg: 'Deletado com sucesso'
+                        })
+                }
+                else {
+                    return res
+                        .status(500)
+                        .send({
+                            err : 'noDelete',
+                            msg : 'Falha ao deletar'
+                        })
+                }
+            }
+            )
+    }
+
+
+
     //to POST Methods - Add itens in itens_list
     static addItensList = async (req, res) => {
         const { list_id, ...product } = req.body;
