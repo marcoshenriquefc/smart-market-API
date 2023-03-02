@@ -207,14 +207,14 @@ export class UserController {
         }
     }
 
-    // to GET Method - Private page 
+    // to GET Method - Take user date
     static userPage = async (req, res) => {
-        const id = req.params.id;
+        const id = req.user._id;
 
-        const user = await UserModel.findOne({ _id: id }, '-password')
+        const user = await UserModel.findOne({ _id: id }, '-password');
 
         if (!user) {
-            res
+            return res
                 .status(404)
                 .send({
                     err: 'userDontExist',
@@ -222,7 +222,9 @@ export class UserController {
                 })
         }
 
-        res.status(200).json(user)
+        return res
+            .status(200)
+            .json(user)
     }
 
     // to PUT Method - Update user list

@@ -6,11 +6,11 @@ import ValidationAuth from "./validationToken.js";
 const router = express.Router();
 
 router
-    .post("/auth/register"  , UserController.registerNewUser)
-    .post("/auth/login"     , UserController.loginUser)
-    .post("/auth/validation", UserController.validateUserToken)
-    .get("/user/put"        , UserController.addListToUser)
-    .get("/user/:id"        , ValidationAuth.checkToken , UserController.userPage)
+    .post("/auth/register"  , UserController.registerNewUser)       // Registe new user ------ 
+    .post("/auth/login"     , UserController.loginUser)             // Authentication user --- 
+    .post("/auth/validation", UserController.validateUserToken)     // Valid token user
+    .get("/user/put"        , UserController.addListToUser)         // 
+    .get("/user"            , ValidationAuth.checkToken , UserController.userPage) // Get user --- Ok
     // .get('/teste',  UserController.getUser)
 
 
