@@ -10,7 +10,7 @@ router
     .post("/listProduct"            , ValidationAuth.checkToken, ListController.createNewList)                                      // Create a new list ---- OK
     .put("/listProduct/total"       , ValidationAuth.checkToken, ListController.verifyifCanEdit, ListController.updateTotalList)    // Update Total list ---- OK
     .put("/listProduct/saveList"    , ValidationAuth.checkToken, ListController.verifyifCanEdit, ListController.saveList)           // Save list  ----------- OK
-    .delete("/listProduct/remove"   , ValidationAuth.checkToken, ListController.verifyIfisOwner, )  
+    .delete("/listProduct/remove"   , ValidationAuth.checkToken, ListController.verifyIfisOwner, ListController.deleteList)         // Delete List
 
     // Item to list
     .post("/listProduct/item"       , ValidationAuth.checkToken, ListController.verifyifCanEdit, ListController.addItensList)       // Add item to list ----- OK

@@ -167,9 +167,8 @@ export default class ListController {
         }
     }
 
-    static deleteList = async (req,res) => {
-        const list_id = 
-
+    static deleteList = async (req, res) => {
+        const { list_id } = req.body;
 
         ListModel.deleteOne(
             { _id: list_id },
