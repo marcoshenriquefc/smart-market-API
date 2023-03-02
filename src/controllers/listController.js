@@ -524,7 +524,6 @@ export default class ListController {
                 )
         }
         else {
-            console.log('is my list', user_id);
             req.userType = 'owner';
             next()
         }
@@ -536,7 +535,6 @@ export default class ListController {
         const isMyList = await Validation.verifyMyList(list_id, user_id);
 
         if(isMyList) {
-            console.log('is my list', user_id);
             next()
         }
         else {
