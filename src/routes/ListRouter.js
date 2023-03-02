@@ -6,6 +6,7 @@ const router = express.Router()
 
 router
     .get("/listProduct/search"      , ValidationAuth.checkToken, ListController.listAllProduct)                                     // Get all lists -------- OK
+    .get("/listProduct/singleList"  , ValidationAuth.checkToken, ListController.verifyifCanEdit, ListController.singleListProduct)  // Get single lists ----- 
     .post("/listProduct"            , ValidationAuth.checkToken, ListController.createNewList)                                      // Create a new list ---- OK
     .put("/listProduct/total"       , ValidationAuth.checkToken, ListController.verifyifCanEdit, ListController.updateTotalList)    // Update Total list ---- OK
     .put("/listProduct/saveList"    , ValidationAuth.checkToken, ListController.verifyifCanEdit, ListController.saveList)           // Save list  ----------- OK

@@ -20,6 +20,29 @@ export default class ListController {
             })
     }
 
+    //to GET Method - list all products
+    static singleListProduct = (req, res) => {
+        // const queryData = req.body;
+        const userType = req.userType;
+        const data = {
+            _id: req.query.list_id
+        }
+
+        ListModel.findOne(data)
+            .populate("user_id", "email")
+            .populate("user_can_view", "email")
+            .exec((err, ListFind) => {
+                const list = Object.assign(ListFind, userType)
+                res
+                    .status(200)
+                    .send({
+                        list        : ListFind,
+                        userType    : userType,
+                        teste       : list
+                    })
+            })
+    }
+
     //to POST Method - Create a new List to product
     static createNewList = (req, res) => {
         const dataList = Object.assign({user_id : req.user._id}, req.body )
@@ -219,7 +242,7 @@ export default class ListController {
 
     //to PUT Method - Update item in itens_list
     static updateItemList = async (req, res) => {
-        const { list_id, ...itemUpdate } = req.body
+        const { list_id, itemUpdate } = req.body
 
         // const checkIdList = await Validation.verifyIDList(list_id, res);
         const verifyIdItem = await Validation.verifyIDItem(list_id, itemUpdate.id_item);
@@ -459,7 +482,11 @@ export default class ListController {
 
     //to VERIFY Methods - Verify if user can edit list
     static verifyifCanEdit = async (req, res, next) => {
-        const { list_id } = req.body;
+        
+        let { list_id } = req.body;
+        if(!list_id) {
+            list_id = req.query.list_id
+        }
         const user_id = req.user._id;
         const isMyList = await Validation.verifyMyList(list_id, user_id);
 
@@ -473,14 +500,14 @@ export default class ListController {
                     (err, listUser) => {
                         if(!err){
                             if(listUser) {
-                                console.log('Is shared', user_id);
+                                req.userType = 'shared';
                                 return next();
                             }
                             else {
                                 res
                                     .status(401)
                                     .send({
-                                        err: 'notAutorization',
+                                        err: 'notAuthorization',
                                         msg: 'User cant change list'
                                     })
                             }
@@ -498,6 +525,7 @@ export default class ListController {
         }
         else {
             console.log('is my list', user_id);
+            req.userType = 'owner';
             next()
         }
     }
