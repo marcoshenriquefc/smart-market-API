@@ -167,8 +167,9 @@ export default class ListController {
         }
     }
 
+    //to DELETE Method - Delete list 
     static deleteList = async (req, res) => {
-        const { list_id } = req.body;
+        const { list_id } = req.query;
 
         ListModel.deleteOne(
             { _id: list_id },
@@ -190,7 +191,7 @@ export default class ListController {
                         })
                 }
             }
-            )
+        )
     }
 
 
@@ -558,7 +559,12 @@ export default class ListController {
     }
 
     static verifyIfisOwner = async (req, res, next) => {
-        const { list_id } = req.body;
+        let { list_id } = req.body;
+
+        if(!list_id) {
+            list_id = req.query.list_id;
+        }
+
         const user_id = req.user._id;
         const isMyList = await Validation.verifyMyList(list_id, user_id);
 
