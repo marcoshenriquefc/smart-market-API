@@ -511,7 +511,6 @@ export default class ListController {
 
     //to VERIFY Methods - Verify if user can edit list
     static verifyifCanEdit = async (req, res, next) => {
-        
         let { list_id } = req.body;
         if(!list_id) {
             list_id = req.query.list_id
@@ -558,6 +557,7 @@ export default class ListController {
         }
     }
 
+    //to VERIFY Method - Verify id user is Owner
     static verifyIfisOwner = async (req, res, next) => {
         let { list_id } = req.body;
 
@@ -601,7 +601,7 @@ class Validation {
         }
     }
 
-    // to verify id List exist
+    // to Verify ID List exist
     static async verifyIDList(idList) {
 
         try {
@@ -623,6 +623,7 @@ class Validation {
 
     }
 
+    // to Verify ID item exist
     static async verifyIDItem(idList, idItem) {
         const item = await ListModel.findOne(
             { _id: idList, "itens_list.id_item": idItem },
@@ -637,6 +638,7 @@ class Validation {
         }
     }
 
+    // to Verify if user can view list
     static async verifyIfuserCanView(idList, idUser){
         const item = await ListModel.findOne(
             { _id: idList, "user_can_view": idUser },
@@ -657,6 +659,7 @@ class Validation {
         }
     }
 
+    // to Verify if user is owner to list
     static async verifyUserIsOwner(idList, idUser){
         const item = await ListModel.findOne(
             { _id: idList},
@@ -673,7 +676,7 @@ class Validation {
         }
     }
 
-
+    // to Verify if user is owner
     static async verifyMyList(idList, idUser) {
         const myList = await ListModel.findOne(
             { _id: idList, "user_id": idUser },
@@ -687,4 +690,5 @@ class Validation {
             return false
         }
     }
+
 }

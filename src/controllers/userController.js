@@ -261,6 +261,28 @@ export class UserController {
     }
 
 
+    static verifyUserExist = async (req, res) => {
+        const user = req.user
+
+        try {
+            const token = UserValidation.createToken(user._id)
+            return res
+                .status(201)
+                .send({
+                    err: null,
+                    msg: 'Autenticado com sucesso',
+                    token: token
+                })
+        }
+        catch {
+            return res
+                .status(500)
+                .send({
+                    err: 'failAutentication',
+                    msg: 'Falha ao autenticar usuário'
+                })
+        }
+    }
 
 
     //TEMP

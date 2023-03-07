@@ -20,13 +20,14 @@ import UserModel from "../models/UserModel.js"
     
             try{
                 const secret = process.env.SECRET;
-                const verify = jwt.verify(token,secret);
+                const verify = jwt.verify(token, secret);
                 const user = await UserModel.findById(verify.id, '-password');
 
                 if (user) {
                     req.user = user;
                     return next();
-                } else {
+                }
+                else {
                     return res
                     .status(404)
                     .send({

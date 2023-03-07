@@ -11,6 +11,8 @@ router
     .post("/auth/validation", UserController.validateUserToken)     // Valid token user
     .get("/user/put"        , UserController.addListToUser)         // 
     .get("/user"            , ValidationAuth.checkToken , UserController.userPage) // Get user --- Ok
+
+    .get("/verifyToken"    , ValidationAuth.checkToken , UserController.verifyUserExist) // 
     // .get('/teste',  UserController.getUser)
 
 
