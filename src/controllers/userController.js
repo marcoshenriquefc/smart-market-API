@@ -298,10 +298,14 @@ export class UserController {
 
     //TEMP
     static getUser = (req, res) => {
+        const iduser = req.body.id;
+
         UserModel
-            .find()
+            .findOne({_id : iduser})
             .exec((err, booksFind) => {
-                res.status(200).json(booksFind)
+                return res
+                    .status(200)
+                    .json(booksFind)
             })
     }
 }
