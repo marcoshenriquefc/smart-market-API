@@ -118,7 +118,7 @@ export class UserController {
                 })
         }
 
-        //Verify if User exist on DB
+        // Verify if User exist on DB
         const user = await UserValidation.verifyEmail(email);
         if (!user) {
             return res
@@ -129,7 +129,7 @@ export class UserController {
                 })
         }
 
-        //Veryfy password match
+        // Veryfy password match
         const checkPassword = await UserValidation.verifyPassword(password, user.password)
         if (!checkPassword) {
             return res
@@ -144,12 +144,18 @@ export class UserController {
             const idUser = user;
             const token = UserValidation.createToken(user._id);
 
+            const dataUser = {
+                token   : token,
+                name    : user.name,
+                email   : user.email,
+            }
+
             res
                 .status(200)
                 .send({
                     err: null,
                     msg: "Autenticação realizada com sucesso",
-                    token: token,
+                    userData : dataUser,
                     idUser: idUser._id,
                 })
         }
@@ -213,6 +219,11 @@ export class UserController {
 
         const user = await UserModel.findOne({ _id: id }, '-password');
 
+        const dataUser = {
+            name    : user.name,
+            email   : user.email
+        }
+
         if (!user) {
             return res
                 .status(404)
@@ -224,7 +235,7 @@ export class UserController {
 
         return res
             .status(200)
-            .json(user)
+            .json(dataUser);
     }
 
     // to PUT Method - Update user list
